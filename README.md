@@ -110,8 +110,8 @@ python "Pipeline_clean.py" -i data -o runs/exp4 --append-out
 ### การตรวจจับสคริปต์ผสม + ตัวช่วยแก้เครื่องหมายไทย
 - `--detect-mixed-script`: ตรวจจับอักขระไทยติดกับ Latin/ญี่ปุ่น/จีน
 - `--mixed-policy`: `skip | tag` (ถ้า `tag` ระบบจะจดธงไว้ใน `--flags-key`)
-- `--thai-mark-fix`: เปิดการแก้ **สระลอย ุ/ู**, ดึงสระกลับ, ลบ/แทนที่สระที่ลอย, และจัดกลุ่มเครื่องหมายซ้ำ
-- `--floating-policy`: วิธีจัดการ ุ/ู ที่ลอย `drop | mask | keep`
+- `--thai-mark-fix`: เปิดการแก้ **สระลอย**, ดึงสระกลับ, ลบ/แทนที่สระที่ลอย, และจัดกลุ่มเครื่องหมายซ้ำ
+- `--floating-policy`: วิธีจัดการสระที่ลอย `drop | mask | keep`
 - `--pull-back-gap`: รูปแบบช่องว่างที่จะดึงกลับ `any | tight`
 - `--normalize`: ปรับ normalization `NFC | NFKC | none`
 - `--flags-key`: ชื่อคีย์ในเอาต์พุตสำหรับเก็บธง เช่น `"__flags"`
@@ -157,8 +157,8 @@ python "Pipeline_clean.py" -i data -o runs/drop \
 ---
 
 ## โครงสร้างผลลัพธ์โดยย่อ
-- `legal.jsonl` / `illegal.jsonl` — บรรทัดละ 1 เรคคอร์ด (JSON) พร้อมข้อความที่ถูกทำความสะอาด
-- `summary.txt` — ตัวเลขสรุป (จำนวนเรคคอร์ด, สัดส่วน, ฯลฯ)
+- `legal.jsonl` / `illegal.jsonl` — บรรทัดละ 1 เร็กคอร์ด (JSON) พร้อมข้อความที่ถูกทำความสะอาด
+- `summary.txt` — ตัวเลขสรุป (จำนวนเร็กคอร์ด, สัดส่วน, ฯลฯ)
 - อาจมีโฟลเดอร์ชิ้นงานชั่วคราว เพื่อรองรับการ resume/merge อัตโนมัติ
 
 ---
