@@ -94,7 +94,7 @@ python "Pipeline_clean.py" -i data -o runs/exp4 --append-out
 - ตัวเลือกเสริม:
   - `--keep-last`: จำนวนเลขท้ายที่คงไว้ในโหมด mask (เช่น บัตร/บัญชี)
   - `--card-mode`, `--account-mode`: โหมดการแทนค่า/สุ่มของบัตรและบัญชี
-  - `--pdpa-salt`: เกลือสำหรับการทำ anonymize ให้คงเสถียร
+  - `--pdpa-salt`: seed noise สำหรับการทำ anonymize ให้คงที่
   - `--addr-gazetteer`: ไฟล์ gazetteer ไทยสำหรับตรวจจับ/แทนที่ที่อยู่
   - `--no-addr-keep-province`: อนุญาตให้สุ่มจังหวัดใหม่เมื่อ anonymize
   - `--addr-tag`: แท็กสำหรับ mask ที่อยู่ (ค่าเริ่มต้น `[ADDRESS]`)
