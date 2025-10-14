@@ -11,6 +11,7 @@
 - Python 3.9+
 - แพ็กเกจที่ใช้ (บางส่วน): `tqdm`, `regex`, `transformers`, `torch` (ถ้าใช้ Thai NER), `fasttext` (ถ้าจะใช้ตัวกรองเบื้องต้น)
 - โมเดล Thai NER แบบ local (ระบุตำแหน่งผ่าน `THAI_NER_PATH` หรือค่าเริ่มต้นในโค้ด)
+- pip install beautifulsoup4 fasttext https://github.com/PyThaiNLP/Thai-Data-Privacy/archive/master.zip ollama
 
 ---
 
