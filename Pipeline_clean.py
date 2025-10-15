@@ -577,6 +577,7 @@ class Options:
     addr_gazetteer: Optional[str] = None
     addr_keep_province: bool = True
     addr_tag: str = "[ADDRESS]"
+    public_figure_skip: bool = True
 
 
 def process_text(text: str, opt: Options, flags: List[str]) -> str:
