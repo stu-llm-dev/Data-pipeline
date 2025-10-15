@@ -225,10 +225,31 @@ def _load_thai_ner():
         return _thai_ner
     try:
         use_cpu = (os.environ.get("CUDA_VISIBLE_DEVICES", "") == "") or (not torch.cuda.is_available())
-        tok = AutoTokenizer.from_pretrained(_TH_NER_PATH, local_files_only=True)
-        _thai_ner = pipeline("token-classification", model=_TH_NER_PATH,
-                             device = (-1 if use_cpu else 0),
-                             aggregation_strategy="simple")
+
+        # โหลด tokenizer ก่อน
+        tok = AutoTokenizer.from_pretrained(
+            _TH_NER_PATH,
+            local_files_only=True,
+            use_fast=True
+        )
+
+        # โหลดโมเดลแบบลดการใช้ RAM
+        from transformers import AutoModelForTokenClassification
+        mdl = AutoModelForTokenClassification.from_pretrained(
+            _TH_NER_PATH,
+            local_files_only=True,
+            torch_dtype="float32",
+            low_cpu_mem_usage=True,
+        )
+
+        # สร้าง pipeline โดยส่งอ็อบเจกต์โมเดล+โทเคไนเซอร์เข้าไป
+        _thai_ner = pipeline(
+            "token-classification",
+            model=mdl,
+            tokenizer=tok,
+            device=(-1 if use_cpu else 0),
+            aggregation_strategy="simple",
+        )
     except Exception as e:
         logging.warning("[thai_ner] disabled: %s", e)
         _thai_ner = None
