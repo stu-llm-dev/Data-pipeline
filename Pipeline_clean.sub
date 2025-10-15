@@ -31,7 +31,7 @@ export TOKENIZERS_PARALLELISM=false
 export TF_CPP_MIN_LOG_LEVEL=3
 # ===== Pipeline & knobs =====
 #กรณีใส่ path เป็น dir ให้ใช้ --pattern "*.jsonl" 
-IN="/project/lt200393-foullm/QP/ppl_benchmark_v4.jsonl"            # โฟลเดอร์ต้นทาง
+IN="/project/lt200393-foullm/QP/benchmark_v4.jsonl"            # โฟลเดอร์ต้นทาง
 OUT="/project/lt200393-foullm/QP/runs"          # โฟลเดอร์ปลายทาง
 SCRIPT="/project/lt200393-foullm/QP/Pipeline_clean.py"   # แนะนำ: เปลี่ยนชื่อไฟล์ให้ไม่มีช่องว่าง
 FASTTEXT="/model/fasttext.bin"            # ถ้าไม่ใช้ fastText ให้คอมเมนต์ทิ้ง
