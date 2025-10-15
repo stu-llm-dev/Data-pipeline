@@ -478,22 +478,22 @@ def _chunk_words(s: str, chunk_size=200, overlap=100):
     return out
 
 
-def route_legal_illegal(text: str, *, enable_ft: bool,
+def route_Good_Bad(text: str, *, enable_ft: bool,
                         chunk_size=200, overlap=100, agg="maxpos") -> str:
     """
-    ตัดสินผลแบบเข้ม: จะเป็น 'illegal' ได้ก็ต่อเมื่อ
+    ตัดสินผลแบบเข้ม: จะเป็น 'Bad' ได้ก็ต่อเมื่อ
     สกอร์ฝั่งบวก (pos prob) รวมระดับเอกสาร >= THRESH_POS
-    otherwise => 'legal'
+    otherwise => 'Good'
 
     agg:
       - 'maxpos'  : ใช้ max ของ prob ฝั่งบวกในทุก chunk (แนะนำ)
       - 'meanpos' : ใช้ค่าเฉลี่ยของ prob ฝั่งบวก
-      - 'majority': เข้ากันได้กับของเดิม แต่จะ 'illegal' ต่อเมื่อ
+      - 'majority': เข้ากันได้กับของเดิม แต่จะ 'Bad' ต่อเมื่อ
                     ทั้งได้เสียงข้างมากเป็น __label__1 และ
                     maxpos >= THRESH_POS
     """
     if not enable_ft or _FT_MODEL is None:
-        return "legal"
+        return "Good"
     try:
         # 1) tokenize BPE (คุณเพิ่งเพิ่มการ strip ▁ ใน _bpe_tokenize แล้ว)
         t_tok = _bpe_tokenize(text)
@@ -531,21 +531,21 @@ def route_legal_illegal(text: str, *, enable_ft: bool,
             # ค่าเริ่มต้น: ใช้ max ของ prob ฝั่งบวก (เหมาะกับเอกสารยาว)
             doc_pos = max(pos_scores)
 
-        # 6) เกณฑ์ตัดสินเข้ม: ต้องมั่นใจ >= THRESH_POS ถึงจะ 'illegal'
+        # 6) เกณฑ์ตัดสินเข้ม: ต้องมั่นใจ >= THRESH_POS ถึงจะ 'Bad'
         if agg == "majority":
             # ของเดิมคุณใช้ majority → ให้คงเงื่อนไข majority + threshold
             from collections import Counter
             top_label, _ = Counter(maj_labels).most_common(1)[0]
             if top_label == _PRED_POS and doc_pos >= THRESH_POS:
-                return "illegal"
-            return "legal"
+                return "Bad"
+            return "Good"
         else:
             # maxpos / meanpos: ใช้ threshold ตรง ๆ
-            return "illegal" if doc_pos >= THRESH_POS else "legal"
+            return "Bad" if doc_pos >= THRESH_POS else "Good"
 
     except Exception as e:
         logging.warning(f"[fastText] routing failed: {e}")
-        return "legal"
+        return "Good"
 
 # ========= Options + processing =========
 @dataclass
@@ -743,11 +743,11 @@ def process_chunk(args):
         pass
         
     stats = defaultdict(int)
-    legal_tmp   = Path(temp_dir) / f"part_{part_id:08d}.legal.jsonl"
-    illegal_tmp = Path(temp_dir) / f"part_{part_id:08d}.illegal.jsonl"
+    Good_tmp   = Path(temp_dir) / f"part_{part_id:08d}.Good.jsonl"
+    Bad_tmp = Path(temp_dir) / f"part_{part_id:08d}.Bad.jsonl"
 
-    with legal_tmp.open("w", encoding="utf-8") as f_legal, \
-         illegal_tmp.open("w", encoding="utf-8") as f_illegal:
+    with Good_tmp.open("w", encoding="utf-8") as f_Good, \
+         Bad_tmp.open("w", encoding="utf-8") as f_Bad:
         for idx, line in enumerate(chunk_lines):
             try:
                 line = (line or "").strip()
@@ -782,13 +782,13 @@ def process_chunk(args):
                 out_obj[opt.flags_key] = sorted(set(flags))
 
             # Routing: fastText only
-            route = route_legal_illegal(cleaned, enable_ft=opt.enable_fasttext)
+            route = route_Good_Bad(cleaned, enable_ft=opt.enable_fasttext)
 
             line_out = json.dumps(out_obj, ensure_ascii=False) + "\n"
-            if route == "illegal":
-                f_illegal.write(line_out); stats["illegal"] += 1
+            if route == "Bad":
+                f_Bad.write(line_out); stats["Bad"] += 1
             else:
-                f_legal.write(line_out); stats["legal"] += 1
+                f_Good.write(line_out); stats["Good"] += 1
             stats["processed"] += 1
 
     # write done marker for resume correctness
@@ -803,20 +803,20 @@ def process_chunk(args):
 
 # ========= Merge helpers =========
 
-def stream_merge_parts(tmp_dir: Path, fo_legal, fo_illegal):
+def stream_merge_parts(tmp_dir: Path, fo_Good, fo_Bad):
     done_markers = sorted(tmp_dir.glob("part_*.done.json"))
     for dm in done_markers:
         prefix = dm.name.replace(".done.json", "")
-        p_legal = tmp_dir / f"{prefix}.legal.jsonl"
-        p_illegal = tmp_dir / f"{prefix}.illegal.jsonl"
-        if p_legal.exists():
-            with p_legal.open("r", encoding="utf-8") as fi:
+        p_Good = tmp_dir / f"{prefix}.Good.jsonl"
+        p_Bad = tmp_dir / f"{prefix}.Bad.jsonl"
+        if p_Good.exists():
+            with p_Good.open("r", encoding="utf-8") as fi:
                 for line in fi:
-                    fo_legal.write(line)
-        if p_illegal.exists():
-            with p_illegal.open("r", encoding="utf-8") as fi:
+                    fo_Good.write(line)
+        if p_Bad.exists():
+            with p_Bad.open("r", encoding="utf-8") as fi:
                 for line in fi:
-                    fo_illegal.write(line)
+                    fo_Bad.write(line)
 
 
 def _write_summary(out_dir: Path, stats: Counter, opt: Options):
@@ -860,8 +860,8 @@ def run_one_input_file(input_file: Path, out_dir: Path, args, opt: Options, opt_
     jobs = []
     for chunk in read_lines_in_chunks(input_file, getattr(args, "chunk_size", 50000)):
         done_json  = tmp_dir / f"part_{part_id:08d}.done.json"
-        legal_tmp  = tmp_dir / f"part_{part_id:08d}.legal.jsonl"
-        illegal_tmp= tmp_dir / f"part_{part_id:08d}.illegal.jsonl"
+        Good_tmp  = tmp_dir / f"part_{part_id:08d}.Good.jsonl"
+        Bad_tmp= tmp_dir / f"part_{part_id:08d}.Bad.jsonl"
 
         already_done = False
         if getattr(args, "resume", True) and done_json.exists():
@@ -877,7 +877,7 @@ def run_one_input_file(input_file: Path, out_dir: Path, args, opt: Options, opt_
             continue
 
         # clean stale tmp before re-run
-        for pp in (legal_tmp, illegal_tmp, done_json):
+        for pp in (Good_tmp, Bad_tmp, done_json):
             try:
                 if pp.exists(): pp.unlink()
             except Exception:
@@ -1111,8 +1111,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     else:
         base_name = args.input.name or "merged"
 
-    legal_out   = out_dir / f"GOOD_{base_name}.jsonl"
-    illegal_out = out_dir / f"ฺBAD_{base_name}.jsonl" 
+    Good_out   = out_dir / f"GOOD_{base_name}.jsonl"
+    Bad_out = out_dir / f"ฺBAD_{base_name}.jsonl" 
     mode = "a" if getattr(args, "append_out", False) else "w"
 
     stats_total: Counter = Counter()
@@ -1121,8 +1121,8 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     # Single-process mode
     if args.single_process:
-        with legal_out.open(mode, encoding="utf-8") as fo_legal, \
-             illegal_out.open(mode, encoding="utf-8") as fo_illegal:
+        with Good_out.open(mode, encoding="utf-8") as fo_Good, \
+             Bad_out.open(mode, encoding="utf-8") as fo_Bad:
             for path in iter_files_from_input(args.input, args.pattern):
                 logging.info(f"[INPUT] {path} (single-process)")
                 tmp_dir = out_dir / f"tmp_{path.stem}"
@@ -1132,7 +1132,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                     res = process_chunk((chunk, part_id, tmp_dir, opt.__dict__.copy()))
                     for k, v in (res or {}).items():
                         stats_total[k] = stats_total.get(k, 0) + int(v)
-                    stream_merge_parts(tmp_dir, fo_legal, fo_illegal)
+                    stream_merge_parts(tmp_dir, fo_Good, fo_Bad)
                     part_id += 1
         # summary
         summary = out_dir / "summary.txt"
@@ -1141,12 +1141,12 @@ def main(argv: Optional[List[str]] = None) -> int:
                 fo.write(f"{k}: {v}\n")
         if stats_total.get("processed", 0) == 0:
             logging.warning("[warn] No records were processed. Check text keys or input format.")
-        logging.info(f"[DONE] merged outputs: {legal_out}, {illegal_out}")
+        logging.info(f"[DONE] merged outputs: {Good_out}, {Bad_out}")
         return 0
 
     # Multi / CPU pools
-    with legal_out.open(mode, encoding="utf-8") as fo_legal, \
-         illegal_out.open(mode, encoding="utf-8") as fo_illegal:
+    with Good_out.open(mode, encoding="utf-8") as fo_Good, \
+         Bad_out.open(mode, encoding="utf-8") as fo_Bad:
         if use_multi_gpu:
             ctx = mp.get_context("spawn")
             pools = []
@@ -1157,7 +1157,7 @@ def main(argv: Optional[List[str]] = None) -> int:
                 for path in iter_files_from_input(args.input, args.pattern):
                     logging.info(f"[INPUT] {path} (multi-GPU)")
                     tmp_dir = run_one_input_file(path, out_dir, args, opt, opt_dict, stats_total, pools)
-                    stream_merge_parts(tmp_dir, fo_legal, fo_illegal)
+                    stream_merge_parts(tmp_dir, fo_Good, fo_Bad)
             finally:
                 for p in pools:
                     try: p.close(); p.join()
@@ -1169,12 +1169,12 @@ def main(argv: Optional[List[str]] = None) -> int:
                 for path in iter_files_from_input(args.input, args.pattern):
                     logging.info(f"[INPUT] {path}")
                     tmp_dir = run_one_input_file(path, out_dir, args, opt, opt_dict, stats_total, pool)
-                    stream_merge_parts(tmp_dir, fo_legal, fo_illegal)
+                    stream_merge_parts(tmp_dir, fo_Good, fo_Bad)
 
     _write_summary(out_dir, stats_total, opt)
     if stats_total.get("processed", 0) == 0:
         logging.warning("[warn] No records were processed. Check text keys or input format.")
-    logging.info("[DONE] merged outputs: legal.jsonl, illegal.jsonl")
+    logging.info("[DONE] merged outputs: Good.jsonl, Bad.jsonl")
     return 0
 
 
