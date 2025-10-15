@@ -11,7 +11,8 @@
 - Python 3.9+
 - แพ็กเกจที่ใช้ (บางส่วน): `tqdm`, `regex`, `transformers`, `torch` (ถ้าใช้ Thai NER), `fasttext` (ถ้าจะใช้ตัวกรองเบื้องต้น)
 - โมเดล Thai NER แบบ local (ระบุตำแหน่งผ่าน `THAI_NER_PATH` หรือค่าเริ่มต้นในโค้ด)
-- เมื่อโหลดโมเดลมาเรียบร้อยแล้วให้สร้างโฟลเดอร์ model/(model ที่โหลดมา)
+- สามารถดาวน์โหลดโมเดลจากลิงก์นี้
+- เมื่อดาวน์โหลดโมเดลมาเรียบร้อยแล้วให้สร้างโฟลเดอร์ model พร้อมแนบไฟล์โมเดล
 ```bash
 pip install beautifulsoup4 fasttext https://github.com/PyThaiNLP/Thai-Data-Privacy/archive/master.zip 
 ```
