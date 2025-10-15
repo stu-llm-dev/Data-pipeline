@@ -4,5 +4,5 @@ pythainlp>=5.0.0
 rapidfuzz>=3.9.0
 transformers>=4.41.0
 torch>=2.1.0
-fasttext>=0.9.2
+fasttext-wheel==0.9.2
 regex>=2024.5.15
