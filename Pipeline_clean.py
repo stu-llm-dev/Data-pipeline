@@ -9,7 +9,7 @@ Drop‑in pipeline for Thai text cleaning with **PDPA + Thai NER** + **checkpoin
 Base: Pipeline_clean_model.py (your file) — extended to include the requested features.
 """
 from __future__ import annotations
-import os, sys, io, json, re, argparse, logging, unicodedata, multiprocessing as mp, pickle
+import os, glob, logging, sys, io, json, re, argparse, logging, unicodedata, multiprocessing as mp, pickle
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
 from dataclasses import dataclass
@@ -27,7 +27,7 @@ _TOK = None
 # ปรับพาธให้ตรงของคุณ หรืออ่านจาก ENV
 _TOKENIZER_DIR = os.environ.get(
     "TY_TOKENIZER_DIR",
-    "/model/tokenizermodel"
+    "/model/NERmodel"
 )
 THRESH_POS = float(os.environ.get("FT_POS_THRESHOLD", "0.95"))
 _PRED_POS = "__label__1"
@@ -641,6 +641,35 @@ def parent_preload(opt: Options, model_path: Optional[str]):
     if opt.enable_fasttext and model_path:
         _load_fasttext(model_path)
 
+def _default_pubfig_paths() -> list[str]:
+    root = os.path.dirname(os.path.abspath(__file__))  # โฟลเดอร์ไฟล์สคริปต์
+    candidates = [
+        os.path.join(root, "corpus", "thai_public_figure_new.txt"),
+        os.path.join(root, "corpus", "thai_celeb_list.txt"),
+        # เผื่อชื่ออื่น ๆ ที่เข้าข่าย
+        *glob.glob(os.path.join(root, "corpus", "thai_*figure*.txt")),
+        *glob.glob(os.path.join(root, "corpus", "*celeb*.txt")),
+    ]
+    out = []
+    for p in candidates:
+        if os.path.isfile(p) and p not in out:
+            out.append(p)
+    return out
+
+def _resolve_pubfig_files(cli_values: list[str] | None) -> list[str]:
+    if cli_values:  # ผู้ใช้ระบุมาเอง (รองรับ wildcard)
+        out = []
+        for v in cli_values:
+            m = glob.glob(v)
+            out.extend(m if m else [v])
+        out = [p for p in out if os.path.isfile(p)]
+        if not out:
+            logging.warning("[pubfig] no valid files from CLI; falling back to defaults")
+            out = _default_pubfig_paths()
+    else:
+        out = _default_pubfig_paths()
+    return out
+
 
 def _worker_init(opt_dict: dict, model_path: Optional[str]):
     opt = Options(**opt_dict)
@@ -1020,12 +1049,20 @@ def main(argv: Optional[List[str]] = None) -> int:
     ap.add_argument("--normalize", type=str, default="NFC", choices=["NFC","NFKC","none"])
     ap.add_argument("--flags-key", type=str, default=None, help="If set, store detection flags under this key in each output record")
 
-    ap.add_argument("--public-figure-files", nargs="+", default=[], help="หนึ่งหรือหลายไฟล์ .txt รายชื่อบุคคลสาธารณะ (หนึ่งชื่อ/บรรทัด)")
+    ap.add_argument("--public-figure-files", nargs="+", default=None, help="หนึ่งหรือหลายไฟล์ .txt รายชื่อบุคคลสาธารณะ (หนึ่งชื่อ/บรรทัด)")
     ap.add_argument("--no-public-figure-skip", action="store_true", help="ปิดการข้ามชื่อบุคคลสาธารณะ(debug)")
 
     args = ap.parse_args(argv)
     global public_figure_skip
-    public_figure_skip = not args.no_public_figure_skip
+    if args.no_public_figure_skip:
+        pubfig_files = []
+    else:
+        pubfig_files = _resolve_pubfig_files(args.public_figure_files)
+
+    if pubfig_files:
+        logging.info("[pubfig] enabled: %d files", len(pubfig_files))
+    else:
+        logging.info("[pubfig] disabled (no list)")
 
     if getattr(args, "self_test", False):
         return _self_test()
@@ -1046,7 +1083,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         if args.no_public_figure_skip:
             configure_public_figure_paths([])
         else:
-            configure_public_figure_paths(args.public_figure_files or [])
+            configure_public_figure_paths(pubfig_files)
 
     out_dir = args.out
     out_dir.mkdir(parents=True, exist_ok=True)
