@@ -1,5 +1,5 @@
 
-# Thai Text Cleaning Pipeline — README
+# Thai Text Cleaning Pipeline
 
 เอกสารนี้อธิบายวิธีใช้งานสคริปต์ **`Pipeline_clean.py`** สำหรับทำความสะอาดข้อความภาษาไทยพร้อมกลไก PDPA, Thai NER, ตรวจจับสคริปต์ผสม, และแก้เครื่องหมายสระเลื่อนสระลอย
 
