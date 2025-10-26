@@ -29,6 +29,21 @@ pip install beautifulsoup4 fasttext https://github.com/PyThaiNLP/Thai-Data-Priva
 
 ## Quickstart
 
+เพื่อให้ระบบสามารถโหลด Thai NER model ได้อย่างถูกต้อง
+ให้ตั้งค่า THAI_NER_PATH ชี้ไปยังโฟลเดอร์โมเดลบนเครื่องของคุณ
+
+## Linux / macOS
+
+export THAI_NER_PATH="model/NERmodel"
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
+
+## Windows PowerShell
+
+$env:THAI_NER_PATH="model\NERmodel"
+$env:HF_HUB_OFFLINE="1"
+$env:TRANSFORMERS_OFFLINE="1"
+
 ```bash
 python Pipeline_clean.py \
   --input data/ \
