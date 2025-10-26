@@ -50,7 +50,7 @@ python Pipeline_clean.py \
 
 ### เปิดใช้งาน Thai NER แบบแมปชื่อแทน
 ```bash
-python "Pipeline_clean.py" \
+python Pipeline_clean.py \
   -i data/ -o runs/exp2 --pattern "*.jsonl" \
   --thai-ner-full --thai-ner-policy anonymize \
   --thai-ner-map path/to/token_map.json
@@ -59,10 +59,10 @@ python "Pipeline_clean.py" \
 ### เริ่มใหม่/ต่อจากเดิม และการเขียนทับผลลัพธ์
 ```bash
 # เริ่มใหม่แบบล้าง checkpoint
-python "Pipeline_clean.py" -i data -o runs/exp3 --clear-ckpt --no-resume
+python Pipeline_clean.py -i data -o runs/exp3 --clear-ckpt --no-resume
 
 # เขียน output ต่อท้ายไฟล์เดิม (append)
-python "Pipeline_clean.py" -i data -o runs/exp4 --append-out
+python Pipeline_clean.py -i data -o runs/exp4 --append-out
 ```
 
 ---
@@ -132,20 +132,20 @@ python "Pipeline_clean.py" -i data -o runs/exp4 --append-out
 ## ตัวอย่างการเลือกขั้นตอน PDPA
 
 ```bash
-# โหมด mask แบบเก็บท้าย 4 ตัว และแท็กที่อยู่เป็น [ADDRESS]
-python "Pipeline_clean.py" -i data -o runs/mask \
+# โหมด mask แบบเก็บท้าย 4 ตัว หรือสามารถปรับได้และแท็กที่อยู่เป็น [ADDRESS]
+python Pipeline_clean.py -i data -o runs/mask \
   --pdpa-policy mask \
   --pdpa-steps "name,email,phone,links,card,account,address" \
   --keep-last 4 --addr-tag "[ADDRESS]"
 
 # โหมด anonymize โดยคงจังหวัดเดิมไว้เมื่อพบในข้อความ
-python "Pipeline_clean.py" -i data -o runs/anon \
+python Pipeline_clean.py -i data -o runs/anon \
   --pdpa-policy anonymize \
   --pdpa-steps "name,email,phone,card,account,address,id_card" \
   --pdpa-salt mysecret --addr-gazetteer thai_provinces_districts.json
 
 # โหมด drop (ลบทิ้ง) สำหรับอีเมล/โทรศัพท์/ลิงก์ + ลบแท็กการ์ด/บัญชีที่ถูก mask ออก
-python "Pipeline_clean.py" -i data -o runs/drop \
+python Pipeline_clean.py -i data -o runs/drop \
   --pdpa-policy drop \
   --pdpa-steps "email,phone,links,card,account,address,id_card"
 ```
