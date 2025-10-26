@@ -32,7 +32,7 @@ pip install beautifulsoup4 fasttext https://github.com/PyThaiNLP/Thai-Data-Priva
 ## Quickstart
 
 ```bash
-python "Pipeline_clean.py" \
+python Pipeline_clean.py \
   --input data/ \
   --pattern "*.jsonl" \
   --out runs/exp1 \
