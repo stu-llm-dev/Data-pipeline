@@ -222,7 +222,7 @@ python Pipeline_clean.py -i data -o runs/drop \
 ```
 
 ## คำถามที่พบบ่อย
-- **Thai NER ช้าไป?** ปิดด้วยการไม่ใช้ `--thai-ner-full` หรือรันบน GPU
+- **Thai NER ช้า?** แก้ด้วยการไม่ใช้ `--thai-ner-full` หรือรันบน GPU
 - **mask ไม่ทับตรงชื่อพอดี?** ตรวจสอบ `--thai-ner-cats` และลองเปิด `--thai-mark-fix` เพื่อให้การแบ่ง token/สระถูกต้องขึ้น
 
 ---
