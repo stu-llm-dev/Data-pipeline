@@ -75,7 +75,6 @@ _GENERIC_LATIN_NAME_RX = re.compile(
 _URL_OR_EMAIL_HINT_RX = re.compile(r"(https?://|www\.|@)")
 
 def reset_person_cache():
-    """ล้างแคชชื่อบุคคล (ไทย) ต่อเอกสาร/ชังก์ เรียกก่อนเริ่มประมวลผลข้อความชุดใหม่"""
     PERSON_ALIAS.clear()
 
 def _looks_like_url_or_email(s: str) -> bool:
@@ -125,7 +124,7 @@ def normalize_person_name(s: str) -> str:
     return s.lower()
 
 _PUBLIC_FIGURE_CFG = type("PF_CFG", (), {"paths": []})
-public_figure_skip: bool = False      # ดีฟอลต์: ไม่ข้าม (จึง anonymize ได้ทุกคน)
+public_figure_skip: bool = False     
 _PUBLIC_FIGURE_SET: Set[str] = set()
 
 def _build_pf_set(paths):
@@ -144,7 +143,6 @@ def _build_pf_set(paths):
     return names
 
 def configure_public_figure_paths(paths: Sequence[str]) -> None:
-    """กำหนดรายชื่อบุคคลสาธารณะ; ว่าง = ปิดโหมด skip"""
     global public_figure_skip, _PUBLIC_FIGURE_SET
     _PUBLIC_FIGURE_SET.clear()
     if not paths:
@@ -225,11 +223,11 @@ def _load_thai_ner():
         return _thai_ner
     try:
         use_cpu = (os.environ.get("CUDA_VISIBLE_DEVICES", "") == "") or (not torch.cuda.is_available())
-
+        local_only = (os.environ.get("HF_HUB_OFFLINE") == "1" or os.environ.get("TRANSFORMERS_OFFLINE") == "1")
         # โหลด tokenizer ก่อน
         tok = AutoTokenizer.from_pretrained(
             _TH_NER_PATH,
-            local_files_only=True,
+            local_files_only=local_only,
             use_fast=True
         )
 
@@ -237,7 +235,7 @@ def _load_thai_ner():
         from transformers import AutoModelForTokenClassification
         mdl = AutoModelForTokenClassification.from_pretrained(
             _TH_NER_PATH,
-            local_files_only=True,
+            local_files_only=local_only,
             torch_dtype="float32",
             low_cpu_mem_usage=True,
         )
