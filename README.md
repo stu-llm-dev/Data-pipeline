@@ -34,22 +34,20 @@ pip install beautifulsoup4 fasttext https://github.com/PyThaiNLP/Thai-Data-Priva
 
 ### Linux / macOS
 
+```bash
 export THAI_NER_PATH="model/NERmodel"
 export HF_HUB_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1
-
-### Windows PowerShell
-
-$env:THAI_NER_PATH="model\NERmodel"
-$env:HF_HUB_OFFLINE="1"
-$env:TRANSFORMERS_OFFLINE="1"
-
+```
+จากนั้น
 ```bash
 python Pipeline_clean.py \
   --input data/ \
   --pattern "*.jsonl" \
   --out runs/ \
-  --workers 4 --chunk-size 200 --save-every 5 \
+  --workers 4 \
+  --chunk-size 200 \
+  --save-every 5 \
   --clean-steps "html,bbcode,emoticon,links,social" \
   --pdpa-policy mask \
   --pdpa-steps "name,email,phone,links,card,account,address" \
@@ -63,6 +61,39 @@ python Pipeline_clean.py \
   --flags-key "__flags" \
   --text-keys "text" \
   --fasttext-model "model/fasttext.bin"
+```
+### Windows PowerShell
+
+```bash
+$env:THAI_NER_PATH="model\NERmodel"
+$env:HF_HUB_OFFLINE="1"
+$env:TRANSFORMERS_OFFLINE="1"
+```
+จากนั้น
+```bash
+python .\Pipeline_clean.py `
+  --input "data" `
+  --pattern "*.jsonl" `
+  --out "runs" `
+  --workers 4 `
+  --chunk-size 200 `
+  --save-every 5 `
+  --clean-steps "html,bbcode,emoticon,links,social" `
+  --pdpa-policy mask `
+  --pdpa-steps "name,email,phone,links,card,account,address" `
+  --keep-last 4 `
+  --addr-gazetteer "thai_provinces_districts.json" `
+  --thai-ner-full `
+  --thai-ner-policy mask `
+  --thai-ner-cats "PERSON,PHONE,EMAIL,ADDRESS,NATIONAL_ID,HOSPITAL_IDS" `
+  --detect-mixed-script `
+  --mixed-policy tag `
+  --thai-mark-fix `
+  --floating-policy drop `
+  --normalize NFC `
+  --flags-key "__flags" `
+  --text-keys "text" `
+  --fasttext-model "model\fasttext.bin"
 ```
 
 ### เปิดใช้งาน Thai NER แบบแมปชื่อแทน
