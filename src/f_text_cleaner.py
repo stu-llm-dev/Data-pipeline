@@ -214,7 +214,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForTokenC
 
 _TH_NER_PATH = os.environ.get(
     "THAI_NER_PATH",
-    "/project/lt200393-foullm/QP/Pipeline_clean/model/models--loolootech--no-name-ner-th"
+    "/model/NERmodel"
 )
 
 _thai_ner = None
