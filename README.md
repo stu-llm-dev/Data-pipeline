@@ -33,7 +33,7 @@ pip install beautifulsoup4 fasttext https://github.com/PyThaiNLP/Thai-Data-Priva
 python Pipeline_clean.py \
   --input data/ \
   --pattern "*.jsonl" \
-  --out runs/exp1 \
+  --out runs/ \
   --workers 4 --chunk-size 200 --save-every 5 \
   --clean-steps "html,bbcode,emoticon,links,social" \
   --pdpa-policy mask \
@@ -45,7 +45,9 @@ python Pipeline_clean.py \
   --thai-ner-cats "PERSON,PHONE,EMAIL,ADDRESS,NATIONAL_ID,HOSPITAL_IDS" \
   --detect-mixed-script --mixed-policy tag \
   --thai-mark-fix --floating-policy drop --normalize NFC \
-  --flags-key "__flags"
+  --flags-key "__flags" \
+  --text-keys "text" \
+  --fasttext-model "model/fasttext.bin"
 ```
 
 ### เปิดใช้งาน Thai NER แบบแมปชื่อแทน
