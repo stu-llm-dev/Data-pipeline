@@ -242,7 +242,7 @@ python Pipeline_clean.py -i data -o runs/drop \
 - --model               ชื่อโมเดลบน HuggingFace หรือ path โมเดลโลคัล
 - --file                ไฟล์อินพุต (.txt .md .markdown .csv .jsonl/.ndjson)
 - --text                ข้อความสั้น ๆ (ซ้ำ flag นี้ได้หลายครั้งถ้าแก้โค้ดรับซ้ำเอง; เวอร์ชันนี้รับครั้งเดียว)
-- --context_length      ความยาวหน้าต่างโทเค็นต่อชิ้น (ค่าเริ่มต้น 1024)
+- --context_length      ความยาวหน้าต่างโทเค็นต่อชิ้น (ค่าเริ่มต้น 32000)
 - --overlap_ratio       สัดส่วนโทเค็นที่ซ้อนทับระหว่างชิ้น (0..1, ค่าเริ่มต้น 0.25)
 - --overlap             จำนวนโทเค็นซ้อนทับแบบกำหนดตรง (ถ้าระบุจะ override overlap_ratio)
 - --batch_size          จำนวนชิ้นต่อ batch ตอน forward (เริ่มต้น 4)
@@ -267,7 +267,7 @@ Windows (PowerShell):
   python .\Perplexity.py `
     --model "C:\path\to\model" `
     --file  "C:\path\to\file.txt" `
-    --context_length 1024 `
+    --context_length 32000 `
     --overlap_ratio 0.25 `
     --md_handling auto `
     --md_strip_code_blocks true `
@@ -279,7 +279,7 @@ Linux/Mac/WSL (Bash):
   python Perplexity.py \
     --model "/path/to/model" \
     --file  "/path/to/file.txt" \
-    --context_length 1024 \
+    --context_length 32000 \
     --overlap_ratio 0.25 \
     --md_handling auto \
     --md_strip_code_blocks true \
@@ -292,7 +292,7 @@ Windows:
   python .\Perplexity.py `
     --model "C:\path\to\model" `
     --text "ประเทศไทยมีความหลากหลายทางวัฒนธรรม" `
-    --context_length 1024 --overlap_ratio 0.25 --verbose
+    --context_length 32000 --overlap_ratio 0.25 --verbose
 ```
 
 Bash:
@@ -300,7 +300,7 @@ Bash:
   python Perplexity.py \
     --model "/path/to/model" \
     --text "ประเทศไทยมีความหลากหลายทางวัฒนธรรม" \
-    --context_length 1024 --overlap_ratio 0.25 --verbose
+    --context_length 32000 --overlap_ratio 0.25 --verbose
 ```
 
 3) วัด PPL ทั้งโฟลเดอร์ และสรุปลง JSON
@@ -309,7 +309,7 @@ Windows:
   python .\Perplexity.py folder `
     --folder "D:\datasets\my_texts" `
     --model  "C:\path\to\model" `
-    --context_length 1024 `
+    --context_length 32000 `
     --overlap_ratio 0.25 `
     --output_json "D:\datasets\my_texts\ppl_summary.json" `
     --md_handling auto --md_strip_code_blocks true
@@ -320,7 +320,7 @@ Bash:
   python Perplexity.py folder \
     --folder "/data/my_texts" \
     --model  "/path/to/model" \
-    --context_length 1024 \
+    --context_length 32000 \
     --overlap_ratio 0.25 \
     --output_json "/data/my_texts/ppl_summary.json" \
     --md_handling auto --md_strip_code_blocks true
@@ -339,7 +339,7 @@ Bash:
         "PPL_micro": 5.01,
         "PPL_macro": 5.08,
         "tokens": 12345,
-        "context_length": 1024,
+        "context_length": 32000,
         "overlap_tokens": 256,
         "overlap_ratio": 0.25
       },
@@ -349,7 +349,7 @@ Bash:
 ---
 
 ## เคล็ดลับการตั้งค่า
-- context_length: ตั้งให้ไม่เกินเพดานโมเดล (เช่น GPT-2 ≈ 1024). สคริปต์จะ cap อัตโนมัติอีกชั้น
+- context_length: ตั้งให้ไม่เกินเพดานโมเดล (เช่น GPT-2 ≈ 32000). สคริปต์จะ cap อัตโนมัติอีกชั้น
 - overlap_ratio: ค่ามาตรฐาน 0.25 ใช้ได้ดี ถ้าข้อความยาวมาก ๆ อาจเพิ่ม batch_size ให้เหมาะกับ GPU/CPU
 - ภาษา: ถ้าโมเดลไม่ได้เทรนบนภาษาไทย ค่า PPL อาจสูงมากเป็นปกติ
 ---
