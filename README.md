@@ -223,12 +223,12 @@ python Pipeline_clean.py -i data -o runs/drop \
 
 ## Perplexity
 ---------------------
-# โหมดไฟล์เดี่ยว หรือ ข้อความเดียว (default; ไม่ใช้ subcommand)
+### โหมดไฟล์เดี่ยว หรือ ข้อความเดียว (default; ไม่ใช้ subcommand)
 ```bash 
   python Perplexity.py --model <MODEL_OR_PATH> [--file <PATH> | --text "ข้อความ"] [options...]
 ```
 
-# โหมดทั้งโฟลเดอร์ (ใช้ subcommand 'folder')
+### โหมดทั้งโฟลเดอร์ (ใช้ subcommand 'folder')
 ```bash
   python Perplexity.py folder --folder <DIR> --model <MODEL_OR_PATH> [options...]
 ```
