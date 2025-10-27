@@ -1,6 +1,6 @@
 
 # Thai Text Cleaning Pipeline
-
+====================================
 เอกสารนี้อธิบายวิธีใช้งานสคริปต์ **`Pipeline_clean.py`** สำหรับทำความสะอาดข้อความภาษาไทยพร้อมกลไก PDPA, Thai NER, ตรวจจับ gibberish(ข้อความขยะ), และแก้เครื่องหมายสระเลื่อนสระลอย
 
 ---
@@ -221,8 +221,10 @@ python Pipeline_clean.py -i data -o runs/drop \
 {"id": "002", "content": "ที่อยู่: 123 ถ.สาทร กรุงเทพฯ 10110"}
 ```
 
-## Perplexity
----------------------
+
+
+# Perplexity — คู่มือการใช้งาน (CLI)
+====================================
 ### โหมดไฟล์เดี่ยว หรือ ข้อความเดียว (default; ไม่ใช้ subcommand)
 ```bash 
   python Perplexity.py --model <MODEL_OR_PATH> [--file <PATH> | --text "ข้อความ"] [options...]
