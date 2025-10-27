@@ -221,6 +221,134 @@ python Pipeline_clean.py -i data -o runs/drop \
 {"id": "002", "content": "ที่อยู่: 123 ถ.สาทร กรุงเทพฯ 10110"}
 ```
 
+## Perplexity
+---------------------
+# โหมดไฟล์เดี่ยว หรือ ข้อความเดียว (default; ไม่ใช้ subcommand)
+```bash 
+  python Perplexity.py --model <MODEL_OR_PATH> [--file <PATH> | --text "ข้อความ"] [options...]
+```
+
+# โหมดทั้งโฟลเดอร์ (ใช้ subcommand 'folder')
+```bash
+  python Perplexity.py folder --folder <DIR> --model <MODEL_OR_PATH> [options...]
+```
+
+อาร์กิวเมนต์สำคัญ
+------------------
+- --model               ชื่อโมเดลบน HuggingFace หรือ path โมเดลโลคัล
+- --file                ไฟล์อินพุต (.txt .md .markdown .csv .jsonl/.ndjson)
+- --text                ข้อความสั้น ๆ (ซ้ำ flag นี้ได้หลายครั้งถ้าแก้โค้ดรับซ้ำเอง; เวอร์ชันนี้รับครั้งเดียว)
+- --context_length      ความยาวหน้าต่างโทเค็นต่อชิ้น (ค่าเริ่มต้น 1024)
+- --overlap_ratio       สัดส่วนโทเค็นที่ซ้อนทับระหว่างชิ้น (0..1, ค่าเริ่มต้น 0.25)
+- --overlap             จำนวนโทเค็นซ้อนทับแบบกำหนดตรง (ถ้าระบุจะ override overlap_ratio)
+- --batch_size          จำนวนชิ้นต่อ batch ตอน forward (เริ่มต้น 4)
+- --use_chat_template   ใช้ chat template ของ tokenizer หรือไม่ (true/false/none)
+- --md_handling         การจัดการ Markdown: auto|force|off
+- --md_strip_code_blocks ตัด code blocks ออกจาก Markdown ก่อนวัด (true/false)
+- --file_format         บังคับชนิดไฟล์: auto|text|md|csv|jsonl
+- --csv_text_col        ชื่อคอลัมน์ข้อความใน CSV (ถ้าไม่ระบุจะเดาให้)
+- --csv_sep             ตัวคั่น CSV (ถ้าไม่ระบุจะเดาให้)
+- --csv_encoding        เอนโค้ดดิ้งของ CSV (เริ่มต้น utf-8-sig)
+- --jsonl_text_field    ชื่อฟิลด์ข้อความใน JSONL (ถ้าไม่ระบุจะเดาให้)
+- --jsonl_encoding      เอนโค้ดดิ้งของ JSONL (เริ่มต้น utf-8)
+- --max_rows            จำกัดจำนวนแถวสูงสุดที่อ่านจาก CSV/JSONL
+- --skip_empty          ข้ามบรรทัดว่าง (true/false)
+- --verbose             โชว์ log รายละเอียด
+
+ตัวอย่างการใช้งาน
+------------------
+1) วัด PPL จากไฟล์เดี่ยว (.txt)
+Windows (PowerShell):
+```bash
+  python .\Perplexity.py `
+    --model "C:\path\to\model" `
+    --file  "C:\path\to\file.txt" `
+    --context_length 1024 `
+    --overlap_ratio 0.25 `
+    --md_handling auto `
+    --md_strip_code_blocks true `
+    --verbose
+```
+
+Linux/Mac/WSL (Bash):
+```bash
+  python Perplexity.py \
+    --model "/path/to/model" \
+    --file  "/path/to/file.txt" \
+    --context_length 1024 \
+    --overlap_ratio 0.25 \
+    --md_handling auto \
+    --md_strip_code_blocks true \
+    --verbose
+```
+
+2) วัด PPL จากข้อความโดยตรง
+Windows:
+```bash
+  python .\Perplexity.py `
+    --model "C:\path\to\model" `
+    --text "ประเทศไทยมีความหลากหลายทางวัฒนธรรม" `
+    --context_length 1024 --overlap_ratio 0.25 --verbose
+```
+
+Bash:
+```bash
+  python Perplexity.py \
+    --model "/path/to/model" \
+    --text "ประเทศไทยมีความหลากหลายทางวัฒนธรรม" \
+    --context_length 1024 --overlap_ratio 0.25 --verbose
+```
+
+3) วัด PPL ทั้งโฟลเดอร์ และสรุปลง JSON
+Windows:
+```bash
+  python .\Perplexity.py folder `
+    --folder "D:\datasets\my_texts" `
+    --model  "C:\path\to\model" `
+    --context_length 1024 `
+    --overlap_ratio 0.25 `
+    --output_json "D:\datasets\my_texts\ppl_summary.json" `
+    --md_handling auto --md_strip_code_blocks true
+```
+
+Bash:
+```bash
+  python Perplexity.py folder \
+    --folder "/data/my_texts" \
+    --model  "/path/to/model" \
+    --context_length 1024 \
+    --overlap_ratio 0.25 \
+    --output_json "/data/my_texts/ppl_summary.json" \
+    --md_handling auto --md_strip_code_blocks true
+```
+
+## ผลลัพธ์และไฟล์สรุป
+-------------------
+- โหมดไฟล์เดี่ยว/ข้อความเดี่ยว: จะแสดง PPL_macro, PPL_micro, tokens ใน log
+- โหมดโฟลเดอร์: ถ้าระบุ --output_json จะสร้างไฟล์ JSON สรุปเดียวที่มีคีย์ "files" เก็บผลรายไฟล์
+  ตัวอย่างส่วน "files" ภายใน ppl_summary.json:
+  ```bash
+    "files": [
+      {
+        "file": "a.txt",
+        "absolute_path": "D:/datasets/my_texts/a.txt",
+        "PPL_micro": 5.01,
+        "PPL_macro": 5.08,
+        "tokens": 12345,
+        "context_length": 1024,
+        "overlap_tokens": 256,
+        "overlap_ratio": 0.25
+      },
+      ...
+    ]
+  ```
+
+## เคล็ดลับการตั้งค่า
+-------------------
+- context_length: ตั้งให้ไม่เกินเพดานโมเดล (เช่น GPT-2 ≈ 1024). สคริปต์จะ cap อัตโนมัติอีกชั้น
+- overlap_ratio: ค่ามาตรฐาน 0.25 ใช้ได้ดี ถ้าข้อความยาวมาก ๆ อาจเพิ่ม batch_size ให้เหมาะกับ GPU/CPU
+- ภาษา: ถ้าโมเดลไม่ได้เทรนบนภาษาไทย ค่า PPL อาจสูงมากเป็นปกติ
+
 ## คำถามที่พบบ่อย
 - **Thai NER ช้า?** แก้ด้วยการไม่ใช้ `--thai-ner-full` หรือรันบน GPU
 - **mask ไม่ทับตรงชื่อพอดี?** ตรวจสอบ `--thai-ner-cats` และลองเปิด `--thai-mark-fix` เพื่อให้การแบ่ง token/สระถูกต้องขึ้น
