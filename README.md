@@ -7,15 +7,21 @@
 ## การติดตั้ง
 - Python 3.9+
 - แพ็กเกจที่ใช้ (บางส่วน): `tqdm`, `regex`, `transformers`, `torch` (ถ้าใช้ Thai NER), `fasttext` (ถ้าจะใช้ตัวกรองเบื้องต้น)
-- โมเดล Thai NER แบบ local (ระบุตำแหน่งผ่าน `THAI_NER_PATH` หรือค่าเริ่มต้นในโค้ด)
-- สามารถดาวน์โหลดโมเดลจากลิงก์นี้
-```bash
-https://huggingface.co/ThanadolSav/fasttext-filter/blob/main/fasttext.bin
-```
-- เมื่อดาวน์โหลดโมเดลมาเรียบร้อยแล้วให้นำไปวางไว้ที่โฟลเดอร์ model
 ```bash
 pip install beautifulsoup4 fasttext https://github.com/PyThaiNLP/Thai-Data-Privacy/archive/master.zip 
 ```
+- โมเดล Thai NER แบบ local (ระบุตำแหน่งผ่าน `THAI_NER_PATH` หรือค่าเริ่มต้นในโค้ด)
+- สามารถดาวน์โหลดโมเดลจากลิงก์นี้
+  
+## fasttext
+```bash
+https://huggingface.co/ThanadolSav/fasttext-filter/blob/main/fasttext.bin
+```
+## loolootech/no-name-ner-th
+```bash
+https://huggingface.co/loolootech/no-name-ner-th
+```
+- เมื่อดาวน์โหลดโมเดลมาเรียบร้อยแล้วให้นำไปวางไว้ที่โฟลเดอร์ model
 
 ---
 
