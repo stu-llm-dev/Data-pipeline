@@ -26,7 +26,7 @@ _FT_MODEL = None
 _TOK = None
 # ปรับพาธให้ตรงของคุณ หรืออ่านจาก ENV
 _TOKENIZER_DIR = os.environ.get(
-    "TY_TOKENIZER_DIR",
+    "THAI_NER_PATH",
     "/model/NERmodel"
 )
 THRESH_POS = float(os.environ.get("FT_POS_THRESHOLD", "0.95"))
